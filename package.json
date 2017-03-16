@@ -13,7 +13,7 @@
     "activationEvents": [
         "onCommand:expo.demoMsgInfo", "onCommand:expo.demoMsgErr", "onCommand:expo.demoMsgWarn",
         "onCommand:expo.printAllCmds", "onCommand:expo.printAllExts", "onCommand:expo.printAllLangs",
-        "onCommand:expo.demoTerm"
+        "onCommand:expo.demoTerm", "onLanguage:markdown"
     ],
     "main": "./out/src/extexpo",
     "contributes": {

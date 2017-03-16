@@ -1,30 +1,32 @@
 'use strict'
 
-import * as vscode from 'vscode'
-import vscmd = vscode.commands
-import vswin = vscode.window
-import vsprj = vscode.workspace
+import * as vs from 'vscode'
+import vscmd = vs.commands
+import vswin = vs.window
+import vsprj = vs.workspace
+
+import * as mdown from './extmarkdown'
 
 
-import { ChildProcess } from 'child_process';
+const disps :vs.Disposable[]    = []
 
-
-let vsOut   :vscode.OutputChannel
-let nterms  :number                 = 0
-const lot   :vscode.Disposable[]    = []
+let vsOut   :vs.OutputChannel           //  this global not `const` because: only want to create in `activate`, not here (but it's never mutated)
+let nterms  :number             = 0     //  this global forever increments by 1, to give newly created terminals a number in the GUI
 
 
 
 export function deactivate() {
     console.log("EXPO: cleanup")
-    for (const disp of lot) disp.dispose()
+    for (const disp of disps) disp.dispose()
     vsOut.dispose()
 }
 
-export function activate (context :vscode.ExtensionContext) {
+
+export function activate (vsctx :vs.ExtensionContext) {
     vsOut = vswin.createOutputChannel('EXPO')
     console.log("EXPO: activated")
 
+    mdown.onActivate(vsctx, disps)
     const democommands =    {   'expo.demoMsgInfo': demoMsgInfo
                             ,   'expo.demoMsgErr': demoMsgErr
                             ,   'expo.demoMsgWarn': demoMsgWarn
@@ -34,7 +36,7 @@ export function activate (context :vscode.ExtensionContext) {
                             ,   'expo.printAllLangs': printAllLangs
                             }
     for (const cmdname in democommands)
-        context.subscriptions.push (
+        vsctx.subscriptions.push (
             vscmd.registerCommand(cmdname, democommands[cmdname]) )
 
     vsprj.onDidChangeConfiguration(onCfgChanged)
@@ -48,7 +50,7 @@ export function activate (context :vscode.ExtensionContext) {
     vswin.onDidChangeTextEditorViewColumn( (_)=> putStrLn("window.onDidChangeTextEditorViewColumn") )
     vswin.onDidChangeVisibleTextEditors( (_)=> putStrLn("window.onDidChangeVisibleTextEditors") )
     vswin.onDidCloseTerminal( (_)=> putStrLn("window.onDidCloseTerminal") )
-    let vsl :vscode.LanguageConfiguration
+    let vsl :vs.LanguageConfiguration
 
     const txtgen = { provideTextDocumentContent : demoTextGen }
     addDisp(vsprj.registerTextDocumentContentProvider('expo', txtgen))
@@ -86,8 +88,8 @@ function demoTerm () {
     term.sendText("echo \"You called EXPO on line " + nterms + "?\"")
 }
 
-function demoTextGen (uri :vscode.Uri, token :vscode.CancellationToken) {
-    return vscode.extensions.all.map( (ext)=> ext.id ).join('\n')
+function demoTextGen (uri :vs.Uri, token :vs.CancellationToken) {
+    return vs.extensions.all.map( (ext)=> ext.id ).join('\n')
 }
 
 function printAllCmds () {
@@ -95,14 +97,14 @@ function printAllCmds () {
 }
 
 function printAllExts () {
-    const   path = vscode.Uri.parse('expo://printAllExts'),
+    const   path = vs.Uri.parse('expo://printAllExts'),
             show = (doc)=>
                 vswin.showTextDocument(doc).then(null, onReject)
     vsprj.openTextDocument(path).then(show , onReject)
 }
 
 function printAllLangs () {
-    vscode.languages.getLanguages().then(putStrLns , onReject)
+    vs.languages.getLanguages().then(putStrLns , onReject)
 }
 
 function putStrLn (ln) {
@@ -114,21 +116,21 @@ function putStrLns (lines :string[]) {
     lines.map(putStrLn)
 }
 
-function addDisp (disp :vscode.Disposable) {
-    lot.push(disp)
+function addDisp (disp :vs.Disposable) {
+    disps.push(disp)
     return disp
 }
 
-function isDocWorthy (doc :vscode.TextDocument) {
-    return doc.uri.scheme!=="git" && doc.uri.scheme!=="output"
+function isDocWorthy (doc :vs.TextDocument) {
+    return doc.uri.scheme!=='git' && doc.uri.scheme!=='output'
 }
 
-function onDocEvent (doc :vscode.TextDocument, eventdesc :string) {
+function onDocEvent (doc :vs.TextDocument, eventdesc :string) {
     if (isDocWorthy(doc))
         addDisp(vswin.setStatusBarMessage("EXPO: " + doc.languageId + " file (" + doc.lineCount + " lines) " + eventdesc + ": " + doc.uri))
 }
 
-function onDocChanged (evt :vscode.TextDocumentChangeEvent) {
+function onDocChanged (evt :vs.TextDocumentChangeEvent) {
     const   doc = evt.document,
             msg = ()=> "EXPO: " + doc.languageId + " file (" + doc.lineCount + " lines) " + doc.uri + ": " + evt.contentChanges.length + " change(s)"
     if (isDocWorthy(doc))
