@@ -12,16 +12,18 @@
     ],
     "activationEvents": [
         "onCommand:expo.demoMsgInfo", "onCommand:expo.demoMsgErr", "onCommand:expo.demoMsgWarn",
-        "onCommand:expo.printAllCmds", "onCommand:expo.printAllExts", "onCommand:expo.printAllLangs"
+        "onCommand:expo.printAllCmds", "onCommand:expo.printAllExts", "onCommand:expo.printAllLangs",
+        "onCommand:expo.demoTerm"
     ],
     "main": "./out/src/extexpo",
     "contributes": {
-        "commands": [   { "category": "EXPO", "command": "expo.demoMsgInfo", "title": "window.showInformationMessage" }
-                    ,   { "category": "EXPO", "command": "expo.demoMsgErr", "title": "window.showErrorMessage" }
-                    ,   { "category": "EXPO", "command": "expo.demoMsgWarn", "title": "window.showWarningMessage" }
-                    ,   { "category": "EXPO", "command": "expo.printAllCmds", "title": "commands.getCommands" }
-                    ,   { "category": "EXPO", "command": "expo.printAllExts", "title": "extensions.all" }
-                    ,   { "category": "EXPO", "command": "expo.printAllLangs", "title": "languages.getLanguages" }
+        "commands": [   { "category": "EXPO", "command": "expo.demoMsgInfo",    "title": "window.showInformationMessage" }
+                    ,   { "category": "EXPO", "command": "expo.demoMsgErr",     "title": "window.showErrorMessage" }
+                    ,   { "category": "EXPO", "command": "expo.demoMsgWarn",    "title": "window.showWarningMessage" }
+                    ,   { "category": "EXPO", "command": "expo.printAllCmds",   "title": "commands.getCommands" }
+                    ,   { "category": "EXPO", "command": "expo.printAllExts",   "title": "extensions.all" }
+                    ,   { "category": "EXPO", "command": "expo.printAllLangs",  "title": "languages.getLanguages" }
+                    ,   { "category": "EXPO", "command": "expo.demoTerm",       "title":"window.createTerminal" }
                     ]
     },
     "scripts": {
