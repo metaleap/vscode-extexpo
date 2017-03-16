@@ -19,9 +19,10 @@ export function onActivate (vsctx :vs.ExtensionContext, disps :vs.Disposable[]) 
     disps.push( vslang.registerCodeLensProvider(_md, { provideCodeLenses: onCodeLenses }) )
     disps.push( vslang.registerCompletionItemProvider(_md, { provideCompletionItems: onCompletion }, "e", "E", "x", "X") )
     disps.push( vslang.registerDefinitionProvider(_md, { provideDefinition: onDefinition }) )
-    disps.push( vslang.registerDocumentFormattingEditProvider(_md, { provideDocumentFormattingEdits: onFormatting }) )
+    // disps.push( vslang.registerDocumentFormattingEditProvider(_md, { provideDocumentFormattingEdits: onFormatting }) )
     disps.push( vslang.registerDocumentHighlightProvider(_md, { provideDocumentHighlights: onHighlights }) )
     disps.push( vslang.registerDocumentLinkProvider(_md, { provideDocumentLinks: onLinks }) )
+    disps.push( vslang.registerDocumentRangeFormattingEditProvider(_md, { provideDocumentRangeFormattingEdits: onRangeFormattingEdits }) )
 }
 
 
@@ -58,11 +59,11 @@ function onDefinition (doc :vs.TextDocument, pos :vs.Position, cancel :vs.Cancel
     return ("expo" === txt.toLowerCase()) ? defLocation : null
 }
 
-function onFormatting (doc :vs.TextDocument, opt :vs.FormattingOptions, cancel :vs.CancellationToken) {
-    const   txtold = doc.getText(),
-            txtnew = txtold.split(" ").join("\n")
-    return [ vs.TextEdit.replace(new vs.Range(doc.positionAt(0), doc.positionAt(txtold.length)), txtnew) ]
-}
+// function onFormatting (doc :vs.TextDocument, opt :vs.FormattingOptions, cancel :vs.CancellationToken) {
+//     const   txtold = doc.getText(),
+//             txtnew = txtold.split(" ").join("\n")
+//     return [ vs.TextEdit.replace(new vs.Range(doc.positionAt(0), doc.positionAt(txtold.length)), txtnew) ]
+// }
 
 function findRanges (doc :vs.TextDocument, needle :string) {
     const ranges = []
@@ -80,4 +81,10 @@ function onHighlights (doc :vs.TextDocument, pos :vs.Position, cancel :vs.Cancel
 
 function onLinks (doc :vs.TextDocument, cancel :vs.CancellationToken) {
     return findRanges(doc, "expo://").map( (r)=> new vs.DocumentLink(r, defLocation.uri) )
+}
+
+function onRangeFormattingEdits (doc :vs.TextDocument, range :vs.Range, opt :vs.FormattingOptions, cancel :vs.CancellationToken) {
+    const   txtold = doc.getText(range),
+            txtnew = txtold.split(" ").join("\n")
+    return [ vs.TextEdit.replace(range, txtnew) ]
 }
