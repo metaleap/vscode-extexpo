@@ -26,7 +26,7 @@ While active, the extension hijacks the `markdown` format for these demos:
 
 * **Code Lens**: is placed just before the first line of the current `markdown` editor, invokes the same code action as above
 
-* **Auto Complete**: lists all `vs.CompletionItemKind` `enum` members with their respective icons (helpful for writing "icon-driven" extensions.. ;)
+* **Auto Complete**: lists all `vs.CompletionItemKind` `enum` members with their respective icons
 
 * **Go to Definition / Peek Definition**: for all words *containing* the sub-string `expo` (any case), just jumps to `vscode-extexpo` in the same listing also generated via the `EXPO: extensions.all` palette command
 
@@ -40,12 +40,12 @@ While active, the extension hijacks the `markdown` format for these demos:
 
 * **Format Document** & **Format Selection**: for the current selection / document, will insert a new-line for every space encountered
 
-* **Go to Symbol in File**: usually `Ctrl+Shift+O`, this collects "words" (naively, ie. just split-by-space) to jump to
+* **Go to Symbol in File**: usually `Ctrl+Shift+O`, this contributes all the document's "words" (*naively*, ie. just split-by-space) to jump to
 
-* **Go to Symbol in Workspace**: usually `Ctrl+T` -- contributes (from not just `markdown` but *any* editor when this extension is loaded) all `vs.SymbolKind` `enum` members with their respective icons (helpful for writing "icon-driven" extensions.. ;), each jumping to the same location as *Go to Definition* above
+* **Go to Symbol in Workspace**: usually `Ctrl+T` -- contributes (not just in `markdown` but *any* editor while this extension is loaded) all `vs.SymbolKind` `enum` members with their respective icons, each jumping to the same location as *Go to Definition* above
 
 * **Find All References**: same as *Peek Definition* above, but for any word
 
 * **Rename Symbol**: case-sensitive word (not per se sub-string) renaming
 
-* **Signature Help**: a tool-tip that pops up whenever a `$` or space character is typed
+* **Signature Help**: a tool-tip that pops up whenever a `$` or ` ` (space) character is typed
