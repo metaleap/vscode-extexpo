@@ -9,6 +9,7 @@ const enum Case { Ignore , Respect }
 
 const   lang_md                         = 'markdown'
     ,   cmpls :vs.CompletionItem[]      = []
+    ,   symbols :vs.SymbolInformation[] = []
     ,   defLocation :vs.Location        = new vs.Location( vs.Uri.parse('expo://printAllExts'), new vs.Position (
                                             vs.extensions.all.findIndex( (vsx)=> vsx.id=='metaleap.vscode-extexpo' ) + 1, 0) )
     ,   codeAction_Replace :vs.Command  = { arguments: [], command: 'expo.replaceExpo',
@@ -26,18 +27,18 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
     disps.push( vslang.registerCodeActionsProvider(lang_md, { provideCodeActions: onCodeActions }) )
     disps.push( vslang.registerCodeLensProvider(lang_md, { provideCodeLenses: onCodeLenses }) )
     disps.push( vslang.registerCompletionItemProvider(lang_md, { provideCompletionItems: onCompletion }, "e", "E", "x", "X") )
-    disps.push( vslang.registerDefinitionProvider(lang_md, { provideDefinition: onDefinition }) )
+    disps.push( vslang.registerDefinitionProvider(lang_md, { provideDefinition: onGoToDefOrImplOrType }) )
     // no need for this DocumentFormattingEdit as we already have DocumentRangeFormattingEdit further down
     //      disps.push( vslang.registerDocumentFormattingEditProvider(_md, { provideDocumentFormattingEdits: <like onRangeFormattingEdits without range> }) )
     disps.push( vslang.registerDocumentHighlightProvider(lang_md, { provideDocumentHighlights: onHighlights }) )
     disps.push( vslang.registerDocumentLinkProvider(lang_md, { provideDocumentLinks: onLinks }) )
     disps.push( vslang.registerDocumentRangeFormattingEditProvider(lang_md, { provideDocumentRangeFormattingEdits: onRangeFormattingEdits }) )
     disps.push( vslang.registerDocumentSymbolProvider(lang_md, { provideDocumentSymbols: onSymbols }) )
-    disps.push( vslang.registerImplementationProvider(lang_md, { provideImplementation: onImplementation }) )
+    disps.push( vslang.registerImplementationProvider(lang_md, { provideImplementation: onGoToDefOrImplOrType }) )
     disps.push( vslang.registerReferenceProvider(lang_md, { provideReferences: onReference }) )
     disps.push( vslang.registerRenameProvider(lang_md, { provideRenameEdits: onRename }) )
-    disps.push( vslang.registerSignatureHelpProvider(lang_md, { provideSignatureHelp: onSignature }, " ", "\t") )
-    disps.push( vslang.registerTypeDefinitionProvider(lang_md, { provideTypeDefinition: onTypeDef }) )
+    disps.push( vslang.registerSignatureHelpProvider(lang_md, { provideSignatureHelp: onSignature }, " ", "$") )
+    disps.push( vslang.registerTypeDefinitionProvider(lang_md, { provideTypeDefinition: onGoToDefOrImplOrType }) )
     disps.push( vslang.registerWorkspaceSymbolProvider({ provideWorkspaceSymbols: onProjSymbols }) )
 }
 
@@ -91,7 +92,7 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
     return cmpls
 }
 
-function onDefinition (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
+function onGoToDefOrImplOrType (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
     return ("expo" === txt.toLowerCase()) ? defLocation : null
 }
@@ -124,37 +125,55 @@ function onSymbols (doc :vs.TextDocument, _cancel :vs.CancellationToken) {
     return symbols
 }
 
-function onImplementation (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
-    return ("expo"===doc.getText(doc.getWordRangeAtPosition(pos)).toLowerCase())
-        ? [defLocation] : []
-}
-
 function onReference (_doc :vs.TextDocument, _pos :vs.Position, _ctx :vs.ReferenceContext, _cancel :vs.CancellationToken) {
     return [defLocation]
 }
 
 function onRename (doc :vs.TextDocument, pos :vs.Position, newname :string, _cancel :vs.CancellationToken) {
-    const wrap = new vs.WorkspaceEdit()
+    const edits = new vs.WorkspaceEdit()
     const oldname = doc.getText(doc.getWordRangeAtPosition(pos))
-    wrap.set( doc.uri , findRanges(doc, oldname, Case.Respect).map(
+    edits.set( doc.uri , findRanges(doc, oldname, Case.Respect).map(
         (r)=> vs.TextEdit.replace(r, newname) ) )
-    return wrap
+    return edits
 }
 
 function onSignature (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
-    const sig = new vs.SignatureHelp()
-    sig.activeParameter = 0 ; sig.activeSignature = 0
-    sig.signatures = [ new vs.SignatureInformation("Sig label", "Sig help text") ]
-    return sig
-}
-
-function onTypeDef (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
-    return defLocation
+    const sighelp = new vs.SignatureHelp()
+    sighelp.activeParameter = 0 ; sighelp.activeSignature = 0
+    sighelp.signatures = [ new vs.SignatureInformation("signature :: foo -> baz -> expo", "Function summary here..") ]
+    sighelp.signatures[0].parameters.push(new vs.ParameterInformation("foo","(Parameter info here..)"))
+    return sighelp
 }
 
 function onProjSymbols (_query :string, _cancel :vs.CancellationToken) {
-    return [    new vs.SymbolInformation("expo", vs.SymbolKind.Package, "EXPO", defLocation),
-                new vs.SymbolInformation("EXPO", vs.SymbolKind.Package, "expo", defLocation) ]
+    if (!symbols.length) {
+        const symkinds = {
+            'vs.SymbolKind.Array': vs.SymbolKind.Array,
+            'vs.SymbolKind.Boolean': vs.SymbolKind.Boolean,
+            'vs.SymbolKind.Class': vs.SymbolKind.Class,
+            'vs.SymbolKind.Constant': vs.SymbolKind.Constant,
+            'vs.SymbolKind.Constructor': vs.SymbolKind.Constructor,
+            'vs.SymbolKind.Enum': vs.SymbolKind.Enum,
+            'vs.SymbolKind.Field': vs.SymbolKind.Field,
+            'vs.SymbolKind.File': vs.SymbolKind.File,
+            'vs.SymbolKind.Function': vs.SymbolKind.Function,
+            'vs.SymbolKind.Interface': vs.SymbolKind.Interface,
+            'vs.SymbolKind.Key': vs.SymbolKind.Key,
+            'vs.SymbolKind.Method': vs.SymbolKind.Method,
+            'vs.SymbolKind.Module': vs.SymbolKind.Module,
+            'vs.SymbolKind.Namespace': vs.SymbolKind.Namespace,
+            'vs.SymbolKind.Null': vs.SymbolKind.Null,
+            'vs.SymbolKind.Number': vs.SymbolKind.Number,
+            'vs.SymbolKind.Object': vs.SymbolKind.Object,
+            'vs.SymbolKind.Package': vs.SymbolKind.Package,
+            'vs.SymbolKind.Property': vs.SymbolKind.Property,
+            'vs.SymbolKind.String': vs.SymbolKind.String,
+            'vs.SymbolKind.Variable': vs.SymbolKind.Variable
+        }
+        for (const symkind in symkinds)
+            symbols.push( new vs.SymbolInformation(symkind, symkinds[symkind], "EXPO", defLocation) )
+    }
+    return symbols
 }
 
 

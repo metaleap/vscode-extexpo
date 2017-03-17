@@ -1,20 +1,51 @@
-## Installation
+# Installation
 
-as usual: `git clone` then `cd vscode-extexpo` then `code .`
+The usual: `git clone` then `cd vscode-extexpo` then `code .`
 
-## Usage
+# Usage
 
-From VScode (having this repo open), `F5` to "debug-mode" into another VScode instance with the extension loaded.
+From VScode (having this repo open), `F5` to "debug-mode" into a new VScode instance with the extension loaded.
 
-### GUI interaction demos:
-* type `EXPO:` in VScode's command palette
+## GUI interaction demos:
+
+Code for this in `src/ext-expo.ts`
+
+* type `EXPO:` in VScode's command palette for these demos
 
 * when offered choices or prompted for input, your pick/input will be printed to the *Output* channel labelled `EXPO`
 
-### Editor interaction demos:
+## Editor interaction demos:
 
-* While loaded, this extension hijacks the `markdown` format for its demos, so best just play with temp files, otherwise might wanna disable Auto-Save -- though VScode's Undo/Redo seems entirely robust anyway.
+Code for this in `src/md-hijack.ts`
 
-* Functionality is, for demo purposes, implemented in technically pointless ways: "format" inserts a line-break for every white-space.. just went for whatever most-simplistic routine showcases the essentials in each case
+While active, this extension hijacks the `markdown` format for these demos:
 
-* Some functionality only "works" on words containing `expo` (*Go to Definition* and such)
+* **Hover**: hover over a word and a quip using it appears in a tool-tip
+
+* **Code Actions**: a light-bulb in the glyph-margin that offers to replace all current selections with (or if none, insert in all cursor locations) the word `EXPO`
+
+* **Code Lens**: is placed just before the first line of the current `markdown` editor, invokes the same code action as above
+
+* **Auto Complete**: lists all `vs.CompletionItemKind` `enum` members with their respective icons (helpful for writing "icon-driven" extensions.. ;)
+
+* **Go to Definition / Peek Definition**: for all words containing the sub-string `expo` (any case), just jumps to `vscode-extexpo` in the same listing also generated via the `EXPO: extensions.all` palette command
+
+* **Go to Implementation**: same functionality as above for this demo
+
+* **Go to Type Declaration**: same functionality as above for this demo
+
+* **Highlights**: ensures all words containing the sub-string `expo` (any case) will be highlighted in `markdown` documents
+
+* **Links**: similar to the out-of-box `http://` / etc. clickable-links, here we ensure all words containing the sub-string `expo://` (any case) will invoke the same jump as our above *Go to Definition*
+
+* **Format Document** & **Format Selection**: for the current selection / document, will insert a new-line for every space encountered
+
+* **Go to Symbol in File**: usually `Ctrl+Shift+O`, this collects "words" (naively, ie. just split-by-space) to jump to
+
+* **Go to Symbol in Workspace**: usually `Ctrl+T` -- contributes (from not just `markdown` but *any* editor when this extension is loaded) all `vs.SymbolKind` `enum` members with their respective icons (helpful for writing "icon-driven" extensions.. ;), each jumping to the same location as *Go to Definition* above
+
+* **Find All References**: same as *Peek Definition* above, but for any word
+
+* **Rename Symbol**: case-sensitive word (not per se sub-string) renaming
+
+* **Signature Help**: a tool-tip that pops up whenever a `$` or space character is typed
