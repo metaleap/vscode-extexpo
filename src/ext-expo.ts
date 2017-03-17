@@ -5,28 +5,20 @@ import vscmd = vs.commands
 import vswin = vs.window
 import vsprj = vs.workspace
 
-import * as mdown from './extmarkdown'
+import * as mdown from './mdhijack'
 
 
-const disps :vs.Disposable[]    = []
-
-let vsOut   :vs.OutputChannel           //  this global not `const` because: only want to create in `activate`, not here (but it's never mutated)
-let nterms  :number             = 0     //  this global forever increments by 1, to give newly created terminals a number in the GUI
-
-
-
-export function deactivate() {
-    console.log("EXPO: cleanup")
-    for (const disp of disps) disp.dispose()
-    vsOut.dispose()
-}
+let disps   :vs.Disposable[]        //  this global gets pointed to `vs.ExtensionContext.subscriptions` to collect all disposables for auto-cleanup
+let vsOut   :vs.OutputChannel       //  this global not `const` because: only want to create in `activate`, not here (but it's never mutated)
+let nterms  :number             = 0 //  this global forever increments by 1, to give newly created terminals a number in the GUI
 
 
 export function activate (vsctx :vs.ExtensionContext) {
-    vsOut = vswin.createOutputChannel('EXPO')
+    disps = vsctx.subscriptions
+    disps.push( vsOut = vswin.createOutputChannel('EXPO') )
     console.log("EXPO: activated")
 
-    mdown.onActivate(vsctx, disps)
+    mdown.onActivate(disps)
     const democommands =    {   'expo.demoMsgInfo': demoMsgInfo
                             ,   'expo.demoMsgErr': demoMsgErr
                             ,   'expo.demoMsgWarn': demoMsgWarn
@@ -50,10 +42,9 @@ export function activate (vsctx :vs.ExtensionContext) {
     vswin.onDidChangeTextEditorViewColumn( ()=> putStrLn("window.onDidChangeTextEditorViewColumn") )
     vswin.onDidChangeVisibleTextEditors( ()=> putStrLn("window.onDidChangeVisibleTextEditors") )
     vswin.onDidCloseTerminal( ()=> putStrLn("window.onDidCloseTerminal") )
-    let vsl :vs.LanguageConfiguration
 
     const txtgen = { provideTextDocumentContent : demoTextGen }
-    addDisp(vsprj.registerTextDocumentContentProvider('expo', txtgen))
+    disps.push( vsprj.registerTextDocumentContentProvider('expo', txtgen) )
 }
 
 
@@ -83,12 +74,12 @@ function demoMsgWarn () {
 function demoTerm () {
     nterms++
     const term = vswin.createTerminal("EXPO Term #" + nterms)
-    addDisp(term)
+    disps.push( term )
     term.show(false)
     term.sendText(`echo "You called EXPO term #${nterms}?"`)
 }
 
-function demoTextGen (uri :vs.Uri, token :vs.CancellationToken) {
+function demoTextGen (_uri :vs.Uri, _token :vs.CancellationToken) {
     return vs.extensions.all.map( (ext)=> ext.id ).join('\n')
 }
 
@@ -98,8 +89,8 @@ function printAllCmds () {
 
 function printAllExts () {
     const   path = vs.Uri.parse('expo://printAllExts'),
-            show = (doc)=>
-                vswin.showTextDocument(doc).then(null, onReject)
+            show = (doc :vs.TextDocument)=>
+                vswin.showTextDocument(doc).then(undefined, onReject)
     vsprj.openTextDocument(path).then(show , onReject)
 }
 
@@ -107,7 +98,7 @@ function printAllLangs () {
     vs.languages.getLanguages().then(putStrLns , onReject)
 }
 
-function putStrLn (ln) {
+function putStrLn (ln :string) {
     vsOut.appendLine(ln)
 }
 
@@ -116,27 +107,22 @@ function putStrLns (lines :string[]) {
     lines.map(putStrLn)
 }
 
-function addDisp (disp :vs.Disposable) {
-    disps.push(disp)
-    return disp
-}
-
 function isDocWorthy (doc :vs.TextDocument) {
     return doc.uri.scheme!=='git' && doc.uri.scheme!=='output'
 }
 
 function onDocEvent (doc :vs.TextDocument, eventdesc :string) {
     if (isDocWorthy(doc))
-        addDisp(vswin.setStatusBarMessage(`EXPO: ${doc.languageId} file (${doc.lineCount} lines) ${eventdesc}: ${doc.uri}`))
+        disps.push( vswin.setStatusBarMessage(`EXPO: ${doc.languageId} file (${doc.lineCount} lines) ${eventdesc}: ${doc.uri}`) )
 }
 
 function onDocChanged (evt :vs.TextDocumentChangeEvent) {
     const   doc = evt.document,
             msg = ()=> `EXPO: ${doc.languageId} file (${doc.lineCount} lines) ${doc.uri}: ${evt.contentChanges.length} change(s)`
     if (isDocWorthy(doc))
-        addDisp(vswin.setStatusBarMessage(msg()))
+        disps.push( vswin.setStatusBarMessage(msg()) )
 }
 
 function onCfgChanged () {
-    addDisp(vswin.setStatusBarMessage("EXPO: configuration changed"))
+    disps.push( vswin.setStatusBarMessage("EXPO: configuration changed") )
 }

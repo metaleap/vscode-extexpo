@@ -15,7 +15,7 @@
         "onCommand:expo.printAllCmds", "onCommand:expo.printAllExts", "onCommand:expo.printAllLangs",
         "onCommand:expo.demoTerm", "onLanguage:markdown"
     ],
-    "main": "./out/src/extexpo",
+    "main": "./out/src/ext-expo",
     "contributes": {
         "commands": [   { "category": "EXPO", "command": "expo.demoMsgInfo",    "title": "window.showInformationMessage" }
                     ,   { "category": "EXPO", "command": "expo.demoMsgErr",     "title": "window.showErrorMessage" }
