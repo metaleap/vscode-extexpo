@@ -1,12 +1,12 @@
-# Installation
+## Installation
 
 The usual: `git clone` then `cd vscode-extexpo` then `code .`
 
-# Usage
+## Usage
 
 From VScode (having this repo open), `F5` to "debug-mode" into a new VScode instance with the extension loaded.
 
-## GUI interaction demos:
+### GUI interaction demos:
 
 Code for this in `src/ext-expo.ts`
 
@@ -14,7 +14,7 @@ Code for this in `src/ext-expo.ts`
 
 * when offered choices or prompted for input, your pick/input will be printed to the *Output* channel labelled `EXPO`
 
-## Editor interaction demos:
+### Editor interaction demos:
 
 Code for this in `src/md-hijack.ts`
 
