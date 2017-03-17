@@ -44,7 +44,7 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
 
 function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return thenish( () => new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" }) )
+    return thenish( () => new vs.Hover({ language: lang_md , value: "*McFly!!* A `" + txt + "` isn't a hoverboard." }) )
 }
 
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
@@ -94,7 +94,7 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
 
 function onGoToDefOrImplOrType (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return ("expo" === txt.toLowerCase()) ? defLocation : null
+    return (txt.toLowerCase().includes("expo")) ? defLocation : null
 }
 
 function onHighlights (doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {

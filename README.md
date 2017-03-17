@@ -28,7 +28,7 @@ While active, the extension hijacks the `markdown` format for these demos:
 
 * **Auto Complete**: lists all `vs.CompletionItemKind` `enum` members with their respective icons (helpful for writing "icon-driven" extensions.. ;)
 
-* **Go to Definition / Peek Definition**: for all words containing the sub-string `expo` (any case), just jumps to `vscode-extexpo` in the same listing also generated via the `EXPO: extensions.all` palette command
+* **Go to Definition / Peek Definition**: for all words *containing* the sub-string `expo` (any case), just jumps to `vscode-extexpo` in the same listing also generated via the `EXPO: extensions.all` palette command
 
 * **Go to Implementation**: same functionality as above for this demo
 
