@@ -18,7 +18,7 @@ Code for this in `src/ext-expo.ts`
 
 Code for this in `src/md-hijack.ts`
 
-While active, this extension hijacks the `markdown` format for these demos:
+While active, the extension hijacks the `markdown` format for these demos:
 
 * **Hover**: hover over a word and a quip using it appears in a tool-tip
 
