@@ -15,7 +15,7 @@ const   lang_md                         = 'markdown'
                                             title: "Replace selection with 'EXPO'" }
 
 
-function toPromise<T> (result : ()=>T) {
+function thenish<T> (result : ()=>T) {
     return new Promise<T>( (resolve)=> { resolve(result()) } )
 }
 
@@ -43,13 +43,11 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
 
 function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return toPromise( () => new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" }) )
+    return thenish( () => new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" }) )
 }
 
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
-    const actions :vs.Command[] = [ codeAction_Replace ]
-    // const doctxt = doc.getText(range) // this is either selection-text OR current-word-under-caret
-    return actions
+    return [ codeAction_Replace ]
 }
 
 function onCodeAction_Replace (ed :vs.TextEditor, op :vs.TextEditorEdit, ..._args :any[]) {
