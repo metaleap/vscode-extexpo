@@ -61,7 +61,7 @@ export function activate (vsctx :vs.ExtensionContext) {
 function onReject (err :any) {
     // used for almost all promises in *this* script, *but* in practice IMHO needless clutter for
     // "robust/quasi-unbreakable"/`undefined`-returning-on-cancellation APIs like showErrorMessage etc
-    vswin.showErrorMessage("Error/cancellation/issue: "+err)
+    vswin.showErrorMessage("Error/cancellation/issue: " + err)
 }
 
 function demoMsgInfo () {
@@ -82,10 +82,10 @@ function demoMsgWarn () {
 
 function demoTerm () {
     nterms++
-    const term = vswin.createTerminal("EXPO Term " + nterms)
+    const term = vswin.createTerminal("EXPO Term #" + nterms)
     addDisp(term)
     term.show(false)
-    term.sendText("echo \"You called EXPO on line " + nterms + "?\"")
+    term.sendText(`echo "You called EXPO term #${nterms}?"`)
 }
 
 function demoTextGen (uri :vs.Uri, token :vs.CancellationToken) {
@@ -127,12 +127,12 @@ function isDocWorthy (doc :vs.TextDocument) {
 
 function onDocEvent (doc :vs.TextDocument, eventdesc :string) {
     if (isDocWorthy(doc))
-        addDisp(vswin.setStatusBarMessage("EXPO: " + doc.languageId + " file (" + doc.lineCount + " lines) " + eventdesc + ": " + doc.uri))
+        addDisp(vswin.setStatusBarMessage(`EXPO: ${doc.languageId} file (${doc.lineCount} lines) ${eventdesc}: ${doc.uri}`))
 }
 
 function onDocChanged (evt :vs.TextDocumentChangeEvent) {
     const   doc = evt.document,
-            msg = ()=> "EXPO: " + doc.languageId + " file (" + doc.lineCount + " lines) " + doc.uri + ": " + evt.contentChanges.length + " change(s)"
+            msg = ()=> `EXPO: ${doc.languageId} file (${doc.lineCount} lines) ${doc.uri}: ${evt.contentChanges.length} change(s)`
     if (isDocWorthy(doc))
         addDisp(vswin.setStatusBarMessage(msg()))
 }

@@ -1,7 +1,7 @@
 {
     "name": "vscode-extexpo",
     "displayName": "VScode Extensions Expo",
-    "description": "showcases nigh-all sorts of GUI integrations that VScode extensions can achieve",
+    "description": "showcases most-all kinds of integrations possible in a custom VScode extension",
     "version": "1.0.0",
     "publisher": "metaleap",
     "engines": {
