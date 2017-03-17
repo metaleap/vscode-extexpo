@@ -4,24 +4,36 @@ import * as vs from 'vscode'
 import vscmd = vs.commands
 import vslang = vs.languages
 
-const enum Case { Ignore , Respect }
 
 
-const   lang_md                         = 'markdown'
-    ,   cmpls :vs.CompletionItem[]      = []
-    ,   symbols :vs.SymbolInformation[] = []
-    ,   defLocation :vs.Location        = new vs.Location( vs.Uri.parse('expo://printAllExts'), new vs.Position (
-                                            vs.extensions.all.findIndex( (vsx)=> vsx.id=='metaleap.vscode-extexpo' ) + 1, 0) )
-    ,   codeAction_Replace :vs.Command  = { arguments: [], command: 'expo.replaceExpo',
-                                            title: "Replace selection with 'EXPO'" }
+const enum      Case                            { Insensitive , Sensitive }
+
+export const    demoUri :vs.Uri                 = vs.Uri.parse('expo://printAllExts')
+
+const           lang_md                         = 'markdown'
+    ,           cmpls :vs.CompletionItem[]      = []
+    ,           symbols :vs.SymbolInformation[] = []
+    ,           defLocation :vs.Location        = new vs.Location(demoUri, new vs.Position (
+                                                    vs.extensions.all.findIndex( (vsx)=>
+                                                        vsx.id=='metaleap.vscode-extexpo' ) + 1, 0) )
+    ,           codeAction_Replace :vs.Command  = { arguments: [], command: 'expo.replaceExpo',
+                                                    title: "Replace selection with 'EXPO'" }
+
+let             diag :vs.DiagnosticCollection
 
 
-function thenish<T> (result : ()=>T) {
+
+//  ALL functions in this module using `promise` could do *entirely without*, as they're simple
+//  mocks not involving any longer-running Serious Work.. however a few are there to remind us that
+//  realistically when talking to language servers, APIs etc, promises will ultimately be prudent.
+function promise<T> (result : ()=>T) {
     return new Promise<T>( (resolve)=> { resolve(result()) } )
 }
 
 
 export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
+    disps.push(diag = vslang.createDiagnosticCollection(lang_md))
+
     disps.push( vscmd.registerTextEditorCommand('expo.replaceExpo', onCodeAction_Replace) )
     disps.push( vslang.registerHoverProvider(lang_md, { provideHover: onHover }) )
     disps.push( vslang.registerCodeActionsProvider(lang_md, { provideCodeActions: onCodeActions }) )
@@ -43,10 +55,13 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
 }
 
 function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
-    const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return thenish( () => new vs.Hover({ language: lang_md , value: "*McFly!!* A `" + txt + "` isn't a hoverboard." }) )
+    return promise( ()=> {  // could do just-the-inner-block *without* the promise wrapper, too
+        const txt = doc.getText(doc.getWordRangeAtPosition(pos))
+        return new vs.Hover({ language: lang_md , value: "*McFly!!* A `" + txt + "` isn't a hoverboard." })
+    })
 }
 
+//  seems to be invoked on the same events as `onHighlights` below; plus on doc-tab-activate
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
     return [ codeAction_Replace ]
 }
@@ -56,8 +71,10 @@ function onCodeAction_Replace (ed :vs.TextEditor, op :vs.TextEditorEdit, ..._arg
         op.replace(sel, "EXPO")
 }
 
-function onCodeLenses (_doc :vs.TextDocument, _cancel :vs.CancellationToken) {
-    return [ new vs.CodeLens(new vs.Range(0, 0, 1, 0), codeAction_Replace) ]
+//  on doc-tab-activate and on edit --- not on save or cursor movements
+function onCodeLenses (doc :vs.TextDocument, _cancel :vs.CancellationToken) {
+    refreshDiag(doc)
+    return [ new vs.CodeLens(new vs.Range(0,0 , 1,0), codeAction_Replace) ]
 }
 
 function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
@@ -97,12 +114,18 @@ function onGoToDefOrImplOrType (doc :vs.TextDocument, pos :vs.Position, _cancel 
     return (txt.toLowerCase().includes("expo")) ? defLocation : null
 }
 
+//  seems to fire whenever the cursor *enters* a word: not when moving from whitespace to white-space, not
+//  when moving from word to white-space, not from moving inside the same word (except after doc-tab-activation)
 function onHighlights (doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
-    return findRanges(doc, "expo", Case.Ignore).map( (r)=> new vs.DocumentHighlight(r) )
+    return findRanges(doc, "expo", Case.Insensitive).then ( (matches)=>
+        matches.map( (r)=> new vs.DocumentHighlight(r) ) )
 }
 
+//  on edit and on activate
 function onLinks (doc :vs.TextDocument, _cancel :vs.CancellationToken) {
-    return findRanges(doc, 'expo://', Case.Ignore).map( (r)=> new vs.DocumentLink(r, defLocation.uri) )
+    refreshDiag(doc)
+    return findRanges(doc, 'expo://', Case.Insensitive).then ( (matches)=>
+        matches.map( (r)=> new vs.DocumentLink(r, defLocation.uri) ) )
 }
 
 function onRangeFormattingEdits (doc :vs.TextDocument, range :vs.Range, _opt :vs.FormattingOptions, _cancel :vs.CancellationToken) {
@@ -130,11 +153,12 @@ function onReference (_doc :vs.TextDocument, _pos :vs.Position, _ctx :vs.Referen
 }
 
 function onRename (doc :vs.TextDocument, pos :vs.Position, newname :string, _cancel :vs.CancellationToken) {
-    const edits = new vs.WorkspaceEdit()
     const oldname = doc.getText(doc.getWordRangeAtPosition(pos))
-    edits.set( doc.uri , findRanges(doc, oldname, Case.Respect).map(
-        (r)=> vs.TextEdit.replace(r, newname) ) )
-    return edits
+    return findRanges(doc, oldname, Case.Sensitive).then((matches)=> {
+        const edits = new vs.WorkspaceEdit()
+        edits.set(doc.uri, matches.map( (range)=> vs.TextEdit.replace(range, newname) ))
+        return edits
+    })
 }
 
 function onSignature (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
@@ -178,13 +202,31 @@ function onProjSymbols (_query :string, _cancel :vs.CancellationToken) {
 
 
 function findRanges (doc :vs.TextDocument, needle :string, casing :Case) {
-    const ranges :vs.Range[] = []
-    let last = -1 , tmp :number, txt = (casing===Case.Ignore) ? doc.getText().toLowerCase() : doc.getText()
-    if (casing===Case.Ignore)
-        needle = needle.toLowerCase()
-    for ( let i = txt.indexOf(needle)   ;   i>=0   ;   i = txt.indexOf(needle) ) {
-        tmp = last + i + 1   ;   last = tmp   ;   txt = txt.substr(i + 1)
-        ranges.push( doc.getWordRangeAtPosition(doc.positionAt(tmp)) as vs.Range )
-    }
-    return ranges
+    return promise (() => {
+        const ranges :vs.Range[] = []
+        let last = -1 , tmp :number, txt = (casing===Case.Sensitive) ? doc.getText() : doc.getText().toLowerCase()
+        if (casing===Case.Insensitive)
+            needle = needle.toLowerCase()
+        for ( let i = txt.indexOf(needle)   ;   i>=0   ;   i = txt.indexOf(needle) ) {
+            tmp = last + i + 1   ;   last = tmp   ;   txt = txt.substr(i + 1)
+            ranges.push( doc.getWordRangeAtPosition(doc.positionAt(tmp)) as vs.Range )
+        }
+        return ranges
+    })
+}
+
+
+function refreshDiag (doc :vs.TextDocument) {
+    diag.clear()
+    const nonissues :vs.Diagnostic[] = []
+    const txt = doc.getText().toLowerCase()
+    const ihint = txt.indexOf("hint"), iwarn = txt.indexOf("warn"), ierr = txt.indexOf("error")
+    const nonissue = (pos :number, msg :string, sev :vs.DiagnosticSeverity) =>
+        nonissues.push ( new vs.Diagnostic(doc.getWordRangeAtPosition(doc.positionAt(pos)) as vs.Range, msg, sev) )
+
+    nonissues.push( new vs.Diagnostic(new vs.Range(0,0 , 1,0), "IntelliGible: this is the 1st line. For more \"diagnostics\", type 'hint' or 'warning' or 'error' anywhere.", vs.DiagnosticSeverity.Information) )
+    if (ihint>=0) nonissue(ihint, "IntelliGible: a hint-sight", vs.DiagnosticSeverity.Hint)
+    if (iwarn>=0) nonissue(iwarn, "IntelliGible: forearm is fore-warned", vs.DiagnosticSeverity.Warning)
+    if (ierr>=0) nonissue(ierr, "IntelliGible: time flies like an error", vs.DiagnosticSeverity.Error)
+    diag.set(doc.uri, nonissues)
 }

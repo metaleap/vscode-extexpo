@@ -88,10 +88,9 @@ function printAllCmds () {
 }
 
 function printAllExts () {
-    const   path = vs.Uri.parse('expo://printAllExts'),
-            show = (doc :vs.TextDocument)=>
-                vswin.showTextDocument(doc).then(undefined, onReject)
-    vsprj.openTextDocument(path).then(show , onReject)
+    const show = (doc :vs.TextDocument)=>
+        vswin.showTextDocument(doc).then(undefined, onReject)
+    vsprj.openTextDocument(mdown.demoUri).then(show , onReject)
 }
 
 function printAllLangs () {
