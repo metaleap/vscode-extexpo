@@ -13,7 +13,7 @@ From VScode (having this repo open), `F5` to "debug-mode" into another VScode in
 
 ### Editor interaction demos:
 
-* While loaded, this extension hijacks the `markdown` format for its demos, so might wanna disable Auto-Save -- though VScode's Undo/Redo seems entirely robust.
+* While loaded, this extension hijacks the `markdown` format for its demos, so best just play with temp files, otherwise might wanna disable Auto-Save -- though VScode's Undo/Redo seems entirely robust anyway.
 
 * Functionality is, for demo purposes, implemented in technically pointless ways: "format" inserts a line-break for every white-space..
 
