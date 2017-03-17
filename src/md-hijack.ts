@@ -7,33 +7,33 @@ import vslang = vs.languages
 const enum Case { Ignore , Respect }
 
 
-const _md                   = 'markdown'
-const defLocation           = new vs.Location( vs.Uri.parse('expo://printAllExts'), new vs.Position (
-                                vs.extensions.all.findIndex( (vsx)=> vsx.id=='metaleap.vscode-extexpo' ) + 1, 0) )
-const codeAction_Replace    = { arguments: [], command: 'expo.replaceExpo',
-                                title: "Replace selection with 'EXPO'" }
+const   lang_md                         = 'markdown'
+    ,   cmpls :vs.CompletionItem[]      = []
+    ,   defLocation :vs.Location        = new vs.Location( vs.Uri.parse('expo://printAllExts'), new vs.Position (
+                                            vs.extensions.all.findIndex( (vsx)=> vsx.id=='metaleap.vscode-extexpo' ) + 1, 0) )
+    ,   codeAction_Replace :vs.Command  = { arguments: [], command: 'expo.replaceExpo',
+                                            title: "Replace selection with 'EXPO'" }
 
 
 
-export function onActivate (disps :vs.Disposable[]) {
+export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
     disps.push( vscmd.registerTextEditorCommand('expo.replaceExpo', onCodeAction_Replace) )
-
-    disps.push( vslang.registerHoverProvider(_md, { provideHover: onHover }) )
-    disps.push( vslang.registerCodeActionsProvider(_md, { provideCodeActions: onCodeActions }) )
-    disps.push( vslang.registerCodeLensProvider(_md, { provideCodeLenses: onCodeLenses }) )
-    disps.push( vslang.registerCompletionItemProvider(_md, { provideCompletionItems: onCompletion }, "e", "E", "x", "X") )
-    disps.push( vslang.registerDefinitionProvider(_md, { provideDefinition: onDefinition }) )
+    disps.push( vslang.registerHoverProvider(lang_md, { provideHover: onHover }) )
+    disps.push( vslang.registerCodeActionsProvider(lang_md, { provideCodeActions: onCodeActions }) )
+    disps.push( vslang.registerCodeLensProvider(lang_md, { provideCodeLenses: onCodeLenses }) )
+    disps.push( vslang.registerCompletionItemProvider(lang_md, { provideCompletionItems: onCompletion }, "e", "E", "x", "X") )
+    disps.push( vslang.registerDefinitionProvider(lang_md, { provideDefinition: onDefinition }) )
     // no need for this DocumentFormattingEdit as we already have DocumentRangeFormattingEdit further down
     //      disps.push( vslang.registerDocumentFormattingEditProvider(_md, { provideDocumentFormattingEdits: <like onRangeFormattingEdits without range> }) )
-    disps.push( vslang.registerDocumentHighlightProvider(_md, { provideDocumentHighlights: onHighlights }) )
-    disps.push( vslang.registerDocumentLinkProvider(_md, { provideDocumentLinks: onLinks }) )
-    disps.push( vslang.registerDocumentRangeFormattingEditProvider(_md, { provideDocumentRangeFormattingEdits: onRangeFormattingEdits }) )
-    disps.push( vslang.registerDocumentSymbolProvider(_md, { provideDocumentSymbols: onSymbols }) )
-    disps.push( vslang.registerImplementationProvider(_md, { provideImplementation: onImplementation }) )
-    disps.push( vslang.registerReferenceProvider(_md, { provideReferences: onReference }) )
-    disps.push( vslang.registerRenameProvider(_md, { provideRenameEdits: onRename }) )
-    disps.push( vslang.registerSignatureHelpProvider(_md, { provideSignatureHelp: onSignature }, " ", "\t") )
-    disps.push( vslang.registerTypeDefinitionProvider(_md, { provideTypeDefinition: onTypeDef }) )
+    disps.push( vslang.registerDocumentHighlightProvider(lang_md, { provideDocumentHighlights: onHighlights }) )
+    disps.push( vslang.registerDocumentLinkProvider(lang_md, { provideDocumentLinks: onLinks }) )
+    disps.push( vslang.registerDocumentRangeFormattingEditProvider(lang_md, { provideDocumentRangeFormattingEdits: onRangeFormattingEdits }) )
+    disps.push( vslang.registerDocumentSymbolProvider(lang_md, { provideDocumentSymbols: onSymbols }) )
+    disps.push( vslang.registerImplementationProvider(lang_md, { provideImplementation: onImplementation }) )
+    disps.push( vslang.registerReferenceProvider(lang_md, { provideReferences: onReference }) )
+    disps.push( vslang.registerRenameProvider(lang_md, { provideRenameEdits: onRename }) )
+    disps.push( vslang.registerSignatureHelpProvider(lang_md, { provideSignatureHelp: onSignature }, " ", "\t") )
+    disps.push( vslang.registerTypeDefinitionProvider(lang_md, { provideTypeDefinition: onTypeDef }) )
     disps.push( vslang.registerWorkspaceSymbolProvider({ provideWorkspaceSymbols: onProjSymbols }) )
 }
 
@@ -41,7 +41,7 @@ export function onActivate (disps :vs.Disposable[]) {
 
 function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return new vs.Hover({ language: _md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" })
+    return new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" })
 }
 
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
@@ -60,11 +60,35 @@ function onCodeLenses (_doc :vs.TextDocument, _cancel :vs.CancellationToken) {
 }
 
 function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.CancellationToken) {
-    const   cmplexpo = new vs.CompletionItem("Auto-complete: expo", vs.CompletionItemKind.Reference),
-            cmplEXPO = new vs.CompletionItem("Auto-complete: EXPO", vs.CompletionItemKind.Folder)
-    cmplEXPO.insertText = "EXPO" ; cmplEXPO.detail = "onCompletion()"
-    cmplexpo.insertText = "expo" ; cmplexpo.documentation = "Need expolanation? Look in `onCompletion()`.."
-    return [cmplexpo, cmplEXPO]
+    if (!cmpls.length) {
+        const cmplkinds = {
+            'vs.CompletionItemKind.Class': vs.CompletionItemKind.Class,
+            'vs.CompletionItemKind.Color': vs.CompletionItemKind.Color,
+            'vs.CompletionItemKind.Constructor': vs.CompletionItemKind.Constructor,
+            'vs.CompletionItemKind.Enum': vs.CompletionItemKind.Enum,
+            'vs.CompletionItemKind.Field': vs.CompletionItemKind.Field,
+            'vs.CompletionItemKind.File': vs.CompletionItemKind.File,
+            'vs.CompletionItemKind.Folder': vs.CompletionItemKind.Folder,
+            'vs.CompletionItemKind.Function': vs.CompletionItemKind.Function,
+            'vs.CompletionItemKind.Interface': vs.CompletionItemKind.Interface,
+            'vs.CompletionItemKind.Keyword': vs.CompletionItemKind.Keyword,
+            'vs.CompletionItemKind.Method': vs.CompletionItemKind.Method,
+            'vs.CompletionItemKind.Module': vs.CompletionItemKind.Module,
+            'vs.CompletionItemKind.Property': vs.CompletionItemKind.Property,
+            'vs.CompletionItemKind.Reference': vs.CompletionItemKind.Reference,
+            'vs.CompletionItemKind.Snippet': vs.CompletionItemKind.Snippet,
+            'vs.CompletionItemKind.Text': vs.CompletionItemKind.Text,
+            'vs.CompletionItemKind.Unit': vs.CompletionItemKind.Unit,
+            'vs.CompletionItemKind.Value': vs.CompletionItemKind.Value,
+            'vs.CompletionItemKind.Variable': vs.CompletionItemKind.Variable
+        }
+        for (const cmplkindname in cmplkinds) {
+            const cmpl = new vs.CompletionItem(cmplkindname, cmplkinds[cmplkindname])
+            cmpl.detail = "EXPO"  ;  cmpl.documentation = "No expolanation needed"
+            cmpls.push(cmpl)
+        }
+    }
+    return cmpls
 }
 
 function onDefinition (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {

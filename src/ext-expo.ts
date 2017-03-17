@@ -5,12 +5,12 @@ import vscmd = vs.commands
 import vswin = vs.window
 import vsprj = vs.workspace
 
-import * as mdown from './mdhijack'
+import * as mdown from './md-hijack'
 
 
 let disps   :vs.Disposable[]        //  this global gets pointed to `vs.ExtensionContext.subscriptions` to collect all disposables for auto-cleanup
 let vsOut   :vs.OutputChannel       //  this global not `const` because: only want to create in `activate`, not here (but it's never mutated)
-let nterms  :number             = 0 //  this global forever increments by 1, to give newly created terminals a number in the GUI
+let nTerms  :number             = 0 //  this global forever increments by 1, to give newly created terminals a number in the GUI
 
 
 export function activate (vsctx :vs.ExtensionContext) {
@@ -18,7 +18,7 @@ export function activate (vsctx :vs.ExtensionContext) {
     disps.push( vsOut = vswin.createOutputChannel('EXPO') )
     console.log("EXPO: activated")
 
-    mdown.onActivate(disps)
+    mdown.hijackAllMarkdownEditors(disps)
     const democommands =    {   'expo.demoMsgInfo': demoMsgInfo
                             ,   'expo.demoMsgErr': demoMsgErr
                             ,   'expo.demoMsgWarn': demoMsgWarn
@@ -72,11 +72,11 @@ function demoMsgWarn () {
 }
 
 function demoTerm () {
-    nterms++
-    const term = vswin.createTerminal("EXPO Term #" + nterms)
+    nTerms++
+    const term = vswin.createTerminal("EXPO Term #" + nTerms)
     disps.push( term )
     term.show(false)
-    term.sendText(`echo "You called EXPO term #${nterms}?"`)
+    term.sendText(`echo "You called EXPO term #${nTerms}?"`)
 }
 
 function demoTextGen (_uri :vs.Uri, _token :vs.CancellationToken) {
