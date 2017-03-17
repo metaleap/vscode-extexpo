@@ -15,6 +15,6 @@ From VScode (having this repo open), `F5` to "debug-mode" into another VScode in
 
 * While loaded, this extension hijacks the `markdown` format for its demos, so best just play with temp files, otherwise might wanna disable Auto-Save -- though VScode's Undo/Redo seems entirely robust anyway.
 
-* Functionality is, for demo purposes, implemented in technically pointless ways: "format" inserts a line-break for every white-space..
+* Functionality is, for demo purposes, implemented in technically pointless ways: "format" inserts a line-break for every white-space.. just went for whatever most-simplistic routine showcases the essentials in each case
 
 * Some functionality only "works" on words containing `expo` (*Go to Definition* and such)
