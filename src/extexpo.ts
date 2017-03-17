@@ -66,7 +66,7 @@ function onReject (err :any) {
 
 function demoMsgInfo () {
     vswin.showInformationMessage("demoMsgInfo ➜ this is `vscode.window.showInformationMessage` in action")
-        .then( ()=> vswin.showInputBox().then(putStrLn) )
+        .then(vswin.showInputBox).then(putStrLn)
 }
 
 function demoMsgErr () {
