@@ -15,6 +15,10 @@ const   lang_md                         = 'markdown'
                                             title: "Replace selection with 'EXPO'" }
 
 
+function toPromise<T> (result : ()=>T) {
+    return new Promise<T>( (resolve)=> { resolve(result()) } )
+}
+
 
 export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
     disps.push( vscmd.registerTextEditorCommand('expo.replaceExpo', onCodeAction_Replace) )
@@ -37,11 +41,9 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
     disps.push( vslang.registerWorkspaceSymbolProvider({ provideWorkspaceSymbols: onProjSymbols }) )
 }
 
-
-
 function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
-    return new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" })
+    return toPromise( () => new vs.Hover({ language: lang_md , value: "**Marty**.. a `" + txt + "` isn't a hoverboard!" }) )
 }
 
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
