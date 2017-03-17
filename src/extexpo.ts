@@ -44,12 +44,12 @@ export function activate (vsctx :vs.ExtensionContext) {
     vsprj.onDidCloseTextDocument( (doc)=> onDocEvent(doc, "closed") )
     vsprj.onDidOpenTextDocument( (doc)=> onDocEvent(doc, "opened from") )
     vsprj.onDidSaveTextDocument( (doc)=> onDocEvent(doc, "saved to") )
-    vswin.onDidChangeActiveTextEditor( (_)=> putStrLn("window.onDidChangeActiveTextEditor") )
-    vswin.onDidChangeTextEditorOptions( (_)=> putStrLn("window.onDidChangeTextEditorOptions") )
+    vswin.onDidChangeActiveTextEditor( ()=> putStrLn("window.onDidChangeActiveTextEditor") )
+    vswin.onDidChangeTextEditorOptions( ()=> putStrLn("window.onDidChangeTextEditorOptions") )
     vswin.onDidChangeTextEditorSelection( (sel)=> { if (sel && sel.kind) putStrLn("window.onDidChangeTextEditorSelection") } )
-    vswin.onDidChangeTextEditorViewColumn( (_)=> putStrLn("window.onDidChangeTextEditorViewColumn") )
-    vswin.onDidChangeVisibleTextEditors( (_)=> putStrLn("window.onDidChangeVisibleTextEditors") )
-    vswin.onDidCloseTerminal( (_)=> putStrLn("window.onDidCloseTerminal") )
+    vswin.onDidChangeTextEditorViewColumn( ()=> putStrLn("window.onDidChangeTextEditorViewColumn") )
+    vswin.onDidChangeVisibleTextEditors( ()=> putStrLn("window.onDidChangeVisibleTextEditors") )
+    vswin.onDidCloseTerminal( ()=> putStrLn("window.onDidCloseTerminal") )
     let vsl :vs.LanguageConfiguration
 
     const txtgen = { provideTextDocumentContent : demoTextGen }
@@ -66,7 +66,7 @@ function onReject (err :any) {
 
 function demoMsgInfo () {
     vswin.showInformationMessage("demoMsgInfo ➜ this is `vscode.window.showInformationMessage` in action")
-        .then( (_)=> vswin.showInputBox().then(putStrLn) )
+        .then( ()=> vswin.showInputBox().then(putStrLn) )
 }
 
 function demoMsgErr () {
