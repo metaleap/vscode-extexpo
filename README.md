@@ -4,14 +4,14 @@ as usual: `git clone` then `cd vscode-extexpo` then `code .`
 
 ## Usage
 
-From VScode (having this repo open), F5 to debug-mode into another VScode instance with the extension loaded.
+From VScode (having this repo open), `F5` to "debug-mode" into another VScode instance with the extension loaded.
 
-### GUI interactions:
+### GUI interaction demos:
 * type `EXPO:` in VScode's command palette
 
 * when offered choices or prompted for input, your pick/input will be printed to the *Output* channel labelled `EXPO`
 
-### Editor interactions:
+### Editor interaction demos:
 
 * While loaded, this extension hijacks the `markdown` format for its demos, so might wanna disable Auto-Save -- though VScode's Undo/Redo seems entirely robust.
 
