@@ -61,7 +61,7 @@ function onHover (doc :vs.TextDocument, pos :vs.Position, _cancel :vs.Cancellati
     })
 }
 
-//  seems to be invoked on the same events as `onHighlights` below; plus on doc-tab-activate
+//  seems to be invoked on the same events as `onHighlights` below; plus on doc-tab-activate.
 function onCodeActions (_doc :vs.TextDocument, _range :vs.Range, _ctx :vs.CodeActionContext, _cancel :vs.CancellationToken) {
     return [ codeAction_Replace ]
 }

@@ -61,7 +61,7 @@ function demoMsgInfo () {
 
 function demoMsgErr () {
     vswin.showErrorMessage("demoMsgErr ➜ this is `vscode.window.showErrorMessage` in action", "QuickPick palette..")
-        .then( (palclicked)=> { if (palclicked) vswin.showQuickPick(["A choice here..","another there..","..pick your choice son!"])
+        .then( (palclicked)=> { if (palclicked) vswin.showQuickPick(["A choice here..","another there..","pick your choice son!"])
             .then(putStrLn , onReject) } , onReject )
 }
 
