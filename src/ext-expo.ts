@@ -28,8 +28,7 @@ export function activate (vsctx :vs.ExtensionContext) {
                             ,   'expo.printAllLangs': printAllLangs
                             }
     for (const cmdname in democommands)
-        vsctx.subscriptions.push (
-            vscmd.registerCommand(cmdname, democommands[cmdname]) )
+        disps.push ( vscmd.registerCommand(cmdname, democommands[cmdname]) )
 
     vsprj.onDidChangeConfiguration(onCfgChanged)
     vsprj.onDidChangeTextDocument(onDocChanged)
@@ -62,7 +61,7 @@ function demoMsgInfo () {
 
 function demoMsgErr () {
     vswin.showErrorMessage("demoMsgErr ➜ this is `vscode.window.showErrorMessage` in action", "QuickPick palette..")
-        .then( (palclicked)=> { if (palclicked) vswin.showQuickPick(["A choice here..","another there..","pick your choice son!"])
+        .then( (palclicked)=> { if (palclicked) vswin.showQuickPick(["A choice here..","another there..","..pick your choice son!"])
             .then(putStrLn , onReject) } , onReject )
 }
 

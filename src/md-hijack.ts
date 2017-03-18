@@ -227,6 +227,6 @@ function refreshDiag (doc :vs.TextDocument) {
     nonissues.push( new vs.Diagnostic(new vs.Range(0,0 , 1,0), "IntelliGible: this is the 1st line. For more \"diagnostics\", type 'hint' or 'warning' or 'error' anywhere.", vs.DiagnosticSeverity.Information) )
     if (ihint>=0) nonissue(ihint, "IntelliGible: a hint-sight", vs.DiagnosticSeverity.Hint)
     if (iwarn>=0) nonissue(iwarn, "IntelliGible: forearm is fore-warned", vs.DiagnosticSeverity.Warning)
-    if (ierr>=0) nonissue(ierr, "IntelliGible: time flies like an error", vs.DiagnosticSeverity.Error)
+    if (ierr>=0) nonissue(ierr, "IntelliGible: time flies like an error. OK here's a fake error:\n\n    • Found hole: _ :: Bool\n    • In the expression: _\n      In a stmt of a pattern guard for\n                     an equation for ‘substitute’:\n        _\n      In an equation for ‘substitute’:\n          substitute old new\n            | old == new = id\n            | _ = fmap $ \ item -> if item == old then new else item\n    • Relevant bindings include\n        new :: a (bound at src/Util.hs:178:17)\n        old :: a (bound at src/Util.hs:178:13)\n        substitute :: a -> a -> [a] -> [a] (bound at src/Util.hs:178:1)\n", vs.DiagnosticSeverity.Error)
     diag.set(doc.uri, nonissues)
 }
