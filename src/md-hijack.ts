@@ -59,7 +59,7 @@ export function hijackAllMarkdownEditors (disps :vs.Disposable[]) {
 function onHover (doc :vs.TextDocument, pos :vs.Position, cancel :vs.CancellationToken) {
     const txt = doc.getText(doc.getWordRangeAtPosition(pos))
     return new Promise<vs.Hover>((onreturn, oncancel)=> {
-        const delayuntil = Date.now() + 2222
+        const delayuntil = Date.now() + 1234
         // let exitnow = false
         // const disp = cancel.onCancellationRequested(()=> { exitnow = true })
         // try {
@@ -73,7 +73,7 @@ function onHover (doc :vs.TextDocument, pos :vs.Position, cancel :vs.Cancellatio
             // disp.dispose()
         // }
 
-        onreturn(new vs.Hover({ language: lang_md , value: "*McFly!!* A `" + txt + "` isn't a hoverboard." }))
+        onreturn(new vs.Hover([ "**Some** shiny `syntax`:", { language: lang_md , value: "*McFly!!* A `" + txt + "` isn't a hoverboard." }, "But..", "here's *more*:", { language: "html", value: "<b>Test</b>" } ]))
     })
 }
 
