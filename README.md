@@ -1,10 +1,11 @@
-## Installation
+## To try it:
 
-The usual: `git clone` then `cd vscode-extexpo` then `code .`
-
-## Usage
-
-From VScode (having this repo open), `F5` to "debug-mode" into a new VScode instance with the extension loaded.
+* `git clone`
+* `cd vscode-extexpo`
+* `code .`
+* From that VScode instance having this repo open:
+    * `Ctrl+F5` to bring up a fresh VScode instance with this extension loaded.
+    * (Or `F5`, or pick from the *Command Palette*: `Start Without Debugging` or `Start Debugging`)
 
 ### GUI interaction demos:
 
