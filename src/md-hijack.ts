@@ -98,8 +98,10 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
         const cmplkinds = {
             'vs.CompletionItemKind.Class': vs.CompletionItemKind.Class,
             'vs.CompletionItemKind.Color': vs.CompletionItemKind.Color,
+            'vs.CompletionItemKind.Constant': vs.CompletionItemKind.Constant,
             'vs.CompletionItemKind.Constructor': vs.CompletionItemKind.Constructor,
             'vs.CompletionItemKind.Enum': vs.CompletionItemKind.Enum,
+            'vs.CompletionItemKind.EnumMember': vs.CompletionItemKind.EnumMember,
             'vs.CompletionItemKind.Field': vs.CompletionItemKind.Field,
             'vs.CompletionItemKind.File': vs.CompletionItemKind.File,
             'vs.CompletionItemKind.Folder': vs.CompletionItemKind.Folder,
@@ -111,6 +113,7 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
             'vs.CompletionItemKind.Property': vs.CompletionItemKind.Property,
             'vs.CompletionItemKind.Reference': vs.CompletionItemKind.Reference,
             'vs.CompletionItemKind.Snippet': vs.CompletionItemKind.Snippet,
+            'vs.CompletionItemKind.Struct': vs.CompletionItemKind.Struct,
             'vs.CompletionItemKind.Text': vs.CompletionItemKind.Text,
             'vs.CompletionItemKind.Unit': vs.CompletionItemKind.Unit,
             'vs.CompletionItemKind.Value': vs.CompletionItemKind.Value,
