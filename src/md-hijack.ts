@@ -102,6 +102,7 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
             'vs.CompletionItemKind.Constructor': vs.CompletionItemKind.Constructor,
             'vs.CompletionItemKind.Enum': vs.CompletionItemKind.Enum,
             'vs.CompletionItemKind.EnumMember': vs.CompletionItemKind.EnumMember,
+            'vs.CompletionItemKind.Event': vs.CompletionItemKind.Event,
             'vs.CompletionItemKind.Field': vs.CompletionItemKind.Field,
             'vs.CompletionItemKind.File': vs.CompletionItemKind.File,
             'vs.CompletionItemKind.Folder': vs.CompletionItemKind.Folder,
@@ -110,11 +111,13 @@ function onCompletion (_doc :vs.TextDocument, _pos :vs.Position, _cancel :vs.Can
             'vs.CompletionItemKind.Keyword': vs.CompletionItemKind.Keyword,
             'vs.CompletionItemKind.Method': vs.CompletionItemKind.Method,
             'vs.CompletionItemKind.Module': vs.CompletionItemKind.Module,
+            'vs.CompletionItemKind.Operator': vs.CompletionItemKind.Operator,
             'vs.CompletionItemKind.Property': vs.CompletionItemKind.Property,
             'vs.CompletionItemKind.Reference': vs.CompletionItemKind.Reference,
             'vs.CompletionItemKind.Snippet': vs.CompletionItemKind.Snippet,
             'vs.CompletionItemKind.Struct': vs.CompletionItemKind.Struct,
             'vs.CompletionItemKind.Text': vs.CompletionItemKind.Text,
+            'vs.CompletionItemKind.TypeParameter': vs.CompletionItemKind.TypeParameter,
             'vs.CompletionItemKind.Unit': vs.CompletionItemKind.Unit,
             'vs.CompletionItemKind.Value': vs.CompletionItemKind.Value,
             'vs.CompletionItemKind.Variable': vs.CompletionItemKind.Variable
@@ -197,6 +200,8 @@ function onProjSymbols (_query :string, _cancel :vs.CancellationToken) {
             'vs.SymbolKind.Constant': vs.SymbolKind.Constant,
             'vs.SymbolKind.Constructor': vs.SymbolKind.Constructor,
             'vs.SymbolKind.Enum': vs.SymbolKind.Enum,
+            'vs.SymbolKind.EnumMember': vs.SymbolKind.EnumMember,
+            'vs.SymbolKind.Event': vs.SymbolKind.Event,
             'vs.SymbolKind.Field': vs.SymbolKind.Field,
             'vs.SymbolKind.File': vs.SymbolKind.File,
             'vs.SymbolKind.Function': vs.SymbolKind.Function,
@@ -208,9 +213,12 @@ function onProjSymbols (_query :string, _cancel :vs.CancellationToken) {
             'vs.SymbolKind.Null': vs.SymbolKind.Null,
             'vs.SymbolKind.Number': vs.SymbolKind.Number,
             'vs.SymbolKind.Object': vs.SymbolKind.Object,
+            'vs.SymbolKind.Operator': vs.SymbolKind.Operator,
             'vs.SymbolKind.Package': vs.SymbolKind.Package,
             'vs.SymbolKind.Property': vs.SymbolKind.Property,
             'vs.SymbolKind.String': vs.SymbolKind.String,
+            'vs.SymbolKind.Struct': vs.SymbolKind.Struct,
+            'vs.SymbolKind.TypeParameter': vs.SymbolKind.TypeParameter,
             'vs.SymbolKind.Variable': vs.SymbolKind.Variable
         }
         for (const symkind in symkinds)
